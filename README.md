@@ -38,7 +38,7 @@ If you have multiple, long running processes to run in your program, you can use
 Launch your goroutines and make sure to defer `relax.Recover(cancel)` so that any panics do not get in the way of graceful shutdown of the program.
 ```Go
 	g.Go(func() error {
-		defer Recover(cancel)
+		defer relax.Recover(cancel)
 		return myLongRunningProcess(ctx)
 	})
 ```
