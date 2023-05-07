@@ -1,63 +1,58 @@
 package relax
 
 import (
-	"context"
-	"errors"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/errgroup"
 )
 
-func TestRelax_WithPanic_MainRoutineCompletes(t *testing.T) {
-	g, ctx := Main()
-
+func TestErrGroup_WithPanic_MainRoutineCompletes(t *testing.T) {
+	mainCtx, cancel := MainContext()
+	g, ctx := errgroup.WithContext(mainCtx)
 	g.Go(func() error {
-		defer Routine(ctx)
-		return func() error {
-			select {
-			case <-ctx.Done():
-				t.Logf("blocking routine is complete")
-			}
-			return nil
-		}()
+		defer Recover(cancel)
+		select {
+		case <-ctx.Done():
+			t.Logf("blocking routine is complete")
+		}
+		t.Logf("sleep")
+		time.Sleep(2)
+		t.Logf("done")
+		return nil
 	})
-
 	g.Go(func() error {
-		childCtx, _ := context.WithCancel(ctx)
-		defer Routine(childCtx)
+		defer Recover(cancel)
 		panic(1)
 	})
-
 	if err := g.Wait(); err != nil {
 		assert.FailNowf(t, "error should be nil: %s", err.Error())
 	}
-
+	<-ctx.Done()
 	t.Log("main goroutine is complete")
 }
 
-func TestRelax_WithError_MainRoutineCompletes(t *testing.T) {
-	g, ctx := Main()
+func TestErrGroup_WithError_MainRoutineCompletes(t *testing.T) {
+	mainCtx, cancel := MainContext()
+	g, ctx := errgroup.WithContext(mainCtx)
 
 	g.Go(func() error {
-		defer Routine(ctx)
-		return func() error {
-			select {
-			case <-ctx.Done():
-				t.Logf("blocking routine is complete")
-			}
-			return nil
-		}()
+		defer Recover(cancel)
+		select {
+		case <-ctx.Done():
+			t.Logf("blocking routine is complete")
+		}
+		return nil
 	})
-
 	g.Go(func() error {
-		childCtx, _ := context.WithCancel(ctx)
-		defer Routine(childCtx)
-		return errors.New("bad")
+		defer Recover(cancel)
+		return fmt.Errorf("bad")
 	})
-
 	if err := g.Wait(); err == nil {
 		assert.FailNow(t, "error should not be nil")
 	}
-
+	<-ctx.Done()
 	t.Log("main goroutine is complete")
 }

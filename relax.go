@@ -7,47 +7,30 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
-
-	"golang.org/x/sync/errgroup"
 )
 
-const (
-	rootCancelKey = "rootCancel"
-)
-
-// Main should be called at the start of the main goroutine.
-// It sets up the root context and cancels it on SIGINT/SIGTERM.
-// The returned error group should be used to launch goroutines that
-// are intended to shutdown as soon as any error is returned from any
-// goroutines launched via the same error group.
-func Main() (*errgroup.Group, context.Context) {
-	// Set up root cancellable context
+// MainContext should be called at the start of the main goroutine.
+// It sets up the main context and cancels it on SIGINT/SIGTERM.
+func MainContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		// Cancel root context on SIGINT/SIGTERM
-		quitCh := make(chan os.Signal, 1)
-		signal.Notify(quitCh, syscall.SIGINT, syscall.SIGTERM)
-		<-quitCh
+		// Cancel on SIGINT/SIGTERM
+		kill := make(chan os.Signal, 1)
+		signal.Notify(kill, syscall.SIGINT, syscall.SIGTERM)
+		<-kill
 		cancel()
 	}()
-
-	// Return the error group and associated context
-	return errgroup.WithContext(context.WithValue(ctx, rootCancelKey, cancel))
+	return ctx, cancel
 }
 
-// Routine should be deferred at the start of any goroutine.
-// It will recover from panic, cancel the context and exit the
-// goroutine. Assuming all the program's goroutines are using
-// the cancelled context, or a contexts derived from it, the entire
-// program will shutdown gracefully.
-func Routine(ctx context.Context) {
-	// Find root cancel func if it exists in the context
-	if cancel, ok := ctx.Value(rootCancelKey).(context.CancelFunc); ok {
-		if r := recover(); r != nil {
-			fmt.Println("recovered from panic:", r)
-			cancel()
-			// Ensure current goroutine ends
-			runtime.Goexit()
-		}
+// Recover must be deferred in any goroutine to ensure that a panic
+// does not prevent graceful shutdown of the program.
+// The entire goroutine will end despite recovering from panic.
+func Recover(cancel context.CancelFunc) {
+	if r := recover(); r != nil {
+		fmt.Println("recovered from panic:", r)
+		cancel()
+		// Ensure current goroutine ends
+		runtime.Goexit()
 	}
 }
