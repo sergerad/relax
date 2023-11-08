@@ -35,15 +35,13 @@ If you have multiple, long running processes to run in your program, you can use
 	g, ctx := errgroup.WithContext(mainCtx)
 ```
 
-Launch your goroutines and make sure to defer `relax.Recover(cancel)` so that any panics do not get in the way of graceful shutdown of the program.
+Launch your goroutines and make sure to `defer relax.Recover(cancel)` so that any panics do not get in the way of graceful shutdown of the program.
 ```Go
 	g.Go(func() error {
 		defer relax.Recover(cancel)
 		return myLongRunningProcess(ctx)
 	})
 ```
-
-You can use `relax.Recover(cancel)` for any sub-goroutine that you launch in your program at all. If you launch goroutines without deferring
 
 Finally, in the main goroutine, make sure to wait for the error group:
 
