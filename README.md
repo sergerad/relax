@@ -1,10 +1,10 @@
 # Relax
 
-*Relax* - verb antonym for *panic*.
+*Relax - there's no need to panic.*
 
-In the context of Go programs, relax means to make critical failures less severe so that graceful shutdown is never jeopardized.
+In some applications, encountering a panic can be problematic. For example, if you panic while responding to a POST request in a REST application, you may end up with a dangling resource in your database. Applications that write state to filesystems may produce corrupt or incomplete state if panics occur during write operations.
 
-Relaxed Go programs start and finish gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
+In contrast to panicking applications, relaxed Go programs start and finish gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
 
 Relaxed Go programs will only shutdown after all running operations and connections have completed and closed, respectively.
 
