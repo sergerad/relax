@@ -2,7 +2,7 @@
 
 *Relax - there's no need to panic.*
 
-In some applications, encountering a panic can be problematic. For example, if you panic while responding to a POST request in a REST application, you may end up with a dangling resource in your database. Applications that write state to filesystems may produce corrupt or incomplete state if panics occur during write operations.
+In some applications, encountering a panic can be problematic. For example, if you panic while responding to a POST request in a REST application, you may end up with a dangling resource in your database. Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a panic.
 
 In contrast to panicking applications, relaxed Go programs start and finish gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
 
