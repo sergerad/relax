@@ -47,9 +47,7 @@ Finally, in the main goroutine, make sure to wait for the error group:
 
 ```Go
 	if err := g.Wait(); err != nil {
-		if err != nil {
-			fmt.Println("error from group", err)
-		}
+		fmt.Println("error from group", err)
 	}
 ```
 

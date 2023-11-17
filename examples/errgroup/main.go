@@ -34,9 +34,7 @@ func main() {
 
 	// Wait for errgroup
 	if err := g.Wait(); err != nil {
-		if err != nil {
-			fmt.Println("error from group", err)
-		}
+		fmt.Println("error from group", err)
 	}
 	fmt.Println("shutting down")
 
