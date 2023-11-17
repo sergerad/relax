@@ -3,7 +3,6 @@ package relax
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/sync/errgroup"
@@ -14,13 +13,8 @@ func TestErrGroup_WithPanic_MainRoutineCompletes(t *testing.T) {
 	g, ctx := errgroup.WithContext(mainCtx)
 	g.Go(func() error {
 		defer Recover(cancel)
-		select {
-		case <-ctx.Done():
-			t.Logf("blocking routine is complete")
-		}
-		t.Logf("sleep")
-		time.Sleep(2)
-		t.Logf("done")
+		<-ctx.Done()
+		t.Logf("blocking routine is complete")
 		return nil
 	})
 	g.Go(func() error {
@@ -40,10 +34,8 @@ func TestErrGroup_WithError_MainRoutineCompletes(t *testing.T) {
 
 	g.Go(func() error {
 		defer Recover(cancel)
-		select {
-		case <-ctx.Done():
-			t.Logf("blocking routine is complete")
-		}
+		<-ctx.Done()
+		t.Logf("blocking routine is complete")
 		return nil
 	})
 	g.Go(func() error {
