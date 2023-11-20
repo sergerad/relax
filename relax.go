@@ -17,8 +17,13 @@ func MainContext() (context.Context, context.CancelFunc) {
 		// Cancel on SIGINT/SIGTERM
 		kill := make(chan os.Signal, 1)
 		signal.Notify(kill, syscall.SIGINT, syscall.SIGTERM)
-		<-kill
-		cancel()
+		// Wait for signal or context cancellation
+		select {
+		case <-kill:
+			cancel()
+		case <-ctx.Done():
+			return
+		}
 	}()
 	return ctx, cancel
 }
