@@ -20,26 +20,26 @@ import (
 )
 ```
 
-Instantiate the error group and main context in the main goroutine.
+Instantiate the main context in the main goroutine.
 
 ```Go
 func main() {
-	mainCtx, cancel := relax.MainContext()
+	mainCtx := relax.Context()
 ```
 
-This ensures that the main goroutine is relaxed against SIGINT and SIGTERM.
+This ensures that SIGINT/SIGTERM will cause all contexts used in the application to be `Done()`.
 
-If you have multiple, long running processes to run in your program, you can use errgroup to launch them.
+If you have multiple, long running processes to run in your program, you can use ErrorGroup to launch them.
 
 ```Go
-	g, ctx := errgroup.WithContext(mainCtx)
+	g, ctx := relax.NewErrorGroup(mainCtx)
 ```
 
-Launch your goroutines and make sure to `defer relax.Recover(cancel)` so that any panics do not get in the way of graceful shutdown of the program.
+You can use the `ErrorGroup` to launch goroutines which will return an error if they encounter a panic.
 ```Go
 	g.Go(func() error {
-		defer relax.Recover(cancel)
-		return myLongRunningProcess(ctx)
+		// An error containing "failed" will be returned
+		panic("failed")
 	})
 ```
 
@@ -47,8 +47,8 @@ Finally, in the main goroutine, make sure to wait for the error group:
 
 ```Go
 	if err := g.Wait(); err != nil {
-		fmt.Println("error from group", err)
+		fmt.Println(err)
 	}
 ```
 
-For more detailed usage, see [examples](./examples/).
+For more detailed usage, see [examples](./examples/) and the `*_test.go` files.
