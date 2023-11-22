@@ -1,8 +1,10 @@
 # Relax
+#### *...there's no need to panic.*
 
-*Relax - there's no need to panic.*
-
-In some applications, encountering a panic can be problematic. For example, if you panic while responding to a POST request in a REST application, you may end up with a dangling resource in your database. Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a panic.
+In some situations, encountering a panic can be problematic. For example:
+* If your REST server panics while handling a POST request, you may end up with a dangling resource in your database;
+* Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a panic; and
+* When running tests, such as integration tests using Go's [coverage capabilities](https://go.dev/testing/coverage/#panicprof), a panic can cause you to lose your prized test results.
 
 In contrast to panicking applications, relaxed Go programs start and finish gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
 
@@ -45,7 +47,7 @@ You can use the `RoutineGroup` to launch goroutines which will return an error i
 Finally, in the main goroutine, make sure to wait for the error group:
 
 ```Go
-	if err := g.Wait(); err != nil {
+	if err := group.Wait(); err != nil {
 		log.Fatal(err)
 	}
 ```
