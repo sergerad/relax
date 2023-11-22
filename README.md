@@ -1,4 +1,5 @@
 # Relax
+![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
 #### *...there's no need to panic.*
 
 In some situations, encountering a panic can be problematic. For example:
