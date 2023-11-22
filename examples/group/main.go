@@ -23,11 +23,10 @@ func main() {
 		return exampleProcessor(ctx)
 	})
 
-	// Wait for errgroup
+	// Wait for routine group
 	if err := group.Wait(); err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("shutting down")
 }
 
 func exampleProcessor(ctx context.Context) error {
