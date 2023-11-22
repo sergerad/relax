@@ -29,16 +29,15 @@ func main() {
 
 This ensures that SIGINT/SIGTERM will cause all contexts used in the application to be `Done()`.
 
-If you have multiple, long running processes to run in your program, you can use ErrorGroup to launch them.
+If you have multiple, long running processes to run in your program, you can use `RoutineGroup` to launch them.
 
 ```Go
-	g, ctx := relax.NewErrorGroup(mainCtx)
+	group, ctx := relax.NewGroup(mainCtx)
 ```
 
-You can use the `ErrorGroup` to launch goroutines which will return an error if they encounter a panic.
+You can use the `RoutineGroup` to launch goroutines which will return an error if they encounter a panic.
 ```Go
-	g.Go(func() error {
-		// An error containing "failed" will be returned
+	group.Go(func() error {
 		panic("failed")
 	})
 ```
@@ -47,7 +46,18 @@ Finally, in the main goroutine, make sure to wait for the error group:
 
 ```Go
 	if err := g.Wait(); err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
+	}
+```
+
+When you only have a single goroutine to run, you can use `Routine` instead of `RoutineGroup`:
+
+```Go
+	routine := relax.Go(func() error {
+		panic("failed")
+	})
+	if err := routine.Wait(); err != nil {
+		log.Fatal(err)
 	}
 ```
 

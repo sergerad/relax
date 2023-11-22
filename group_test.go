@@ -6,14 +6,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestErrGroup_CancelParentContext_ChildContextDone(t *testing.T) {
+func TestGroup_CancelParentContext_ChildContextDone(t *testing.T) {
 	// Root context to cancel
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Group to wait on root and group context Done()
-	e, gCtx := NewErrorGroup(ctx)
+	e, gCtx := NewGroup(ctx)
 	e.Go(func() error {
 		<-ctx.Done()
 		<-gCtx.Done()
@@ -27,12 +28,12 @@ func TestErrGroup_CancelParentContext_ChildContextDone(t *testing.T) {
 	assert.NoError(t, e.Wait())
 }
 
-func TestErrGroup_Panic_Error(t *testing.T) {
+func TestGroup_Panic_Error(t *testing.T) {
 	// Group
-	e, ctx := NewErrorGroup(context.Background())
+	e, ctx := NewGroup(context.Background())
 
 	// Routine that panics
-	panicMsg := "testing content is returned as error"
+	panicMsg := "test panic"
 	e.Go(func() error {
 		panic(panicMsg)
 	})
@@ -45,14 +46,14 @@ func TestErrGroup_Panic_Error(t *testing.T) {
 
 	// Wait for all goroutines
 	err := e.Wait()
-	assert.Error(t, err)
+	require.Error(t, err)
 	// Verify panic message/error is returned
 	assert.Contains(t, err.Error(), panicMsg)
 	assert.True(t, errors.Is(err, PanicError))
 }
 
-func TestErrGroup_NoPanic_NoError(t *testing.T) {
-	e, _ := NewErrorGroup(context.Background())
+func TestGroup_NoPanic_NoError(t *testing.T) {
+	e, _ := NewGroup(context.Background())
 	e.Go(func() error {
 		return nil
 	})

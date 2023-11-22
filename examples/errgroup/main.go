@@ -9,22 +9,22 @@ import (
 
 func main() {
 	// Instantiate the main context and error group
-	g, ctx := relax.NewErrorGroup(relax.Context())
+	group, ctx := relax.NewGroup(relax.Context())
 
 	// Launch goroutine that blocks on context
-	g.Go(func() error {
+	group.Go(func() error {
 		<-ctx.Done()
 		fmt.Println("blocking routine done")
 		return nil
 	})
 
 	// Launch goroutine that resembles a long running processor
-	g.Go(func() error {
+	group.Go(func() error {
 		return exampleProcessor(ctx)
 	})
 
 	// Wait for errgroup
-	if err := g.Wait(); err != nil {
+	if err := group.Wait(); err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("shutting down")

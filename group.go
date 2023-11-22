@@ -13,25 +13,25 @@ var (
 	PanicError = fmt.Errorf("recovered from panic")
 )
 
-// ErrorGroup is a wrapper around golang.org/x/sync/errgroup.Group that
+// RoutineGroup is a wrapper around golang.org/x/sync/errgroup.Group that
 // recovers from panics and returns them as errors
-type ErrorGroup struct {
+type RoutineGroup struct {
 	*errgroup.Group
 }
 
-// NewErrorGroup instantiates an ErrorGroup and corresponding context.
+// NewGroup instantiates an RoutineGroup and corresponding context.
 // This function should be used the same way as errgroup.WithContext() from
 // golang.org/x/sync/errgroup
-func NewErrorGroup(ctx context.Context) (*ErrorGroup, context.Context) {
+func NewGroup(ctx context.Context) (*RoutineGroup, context.Context) {
 	errgroup, groupCtx := errgroup.WithContext(ctx)
-	return &ErrorGroup{
+	return &RoutineGroup{
 		Group: errgroup,
 	}, groupCtx
 }
 
 // Go runs a provided func in a goroutine while ensuring that
 // any panic is recovered and returned as an error
-func (g *ErrorGroup) Go(f func() error) {
+func (g *RoutineGroup) Go(f func() error) {
 	g.Group.Go(func() (err error) {
 		// Define a recover func that converts a panic to an error
 		recoverFunc := func() {
