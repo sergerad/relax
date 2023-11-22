@@ -1,4 +1,4 @@
-name: Generate code coverage badge
+name: Test src and generate coverage badge
 
 on:
   pull_request:
@@ -20,6 +20,14 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
+
+      - name: Run lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.55
+
+      - name: Go build
+        run: go build -v ./...
 
       - name: Run Test
         run: |
