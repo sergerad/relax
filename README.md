@@ -1,6 +1,8 @@
 # Relax
 #### *...there's no need to panic.*
 
+![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
+
 In some situations, encountering a panic can be problematic. For example:
 * If your REST server panics while handling a POST request, you may end up with a dangling resource in your database;
 * Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a panic; and
