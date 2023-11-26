@@ -10,11 +10,11 @@ import (
 )
 
 func TestContext_Signals_CancelContext(t *testing.T) {
-	for _, signal := range Signals() {
-		t.Run(signal.String(), func(t *testing.T) {
+	for _, signal := range []string{"SIGINT", "SIGTERM"} {
+		t.Run(signal, func(t *testing.T) {
 			ctx := Context()
 			go func() {
-				cmd := exec.Command("kill", "-SIGINT", fmt.Sprint(os.Getpid()))
+				cmd := exec.Command("kill", "-"+signal, fmt.Sprint(os.Getpid()))
 				cmd.Stderr = os.Stderr
 				cmd.Stdout = os.Stdout
 				require.NoError(t, cmd.Run())

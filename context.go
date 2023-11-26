@@ -16,16 +16,11 @@ func Context() context.Context {
 	go func() {
 		// Cancel context on signals
 		signalChan := make(chan os.Signal, 1)
-		signal.Notify(signalChan, Signals()...)
+		signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 		// Wait for signal
 		<-signalChan
 		// Cancel context
 		cancel()
 	}()
 	return ctx
-}
-
-// Signals returns the signals that will cause the context to be cancelled.
-func Signals() []os.Signal {
-	return []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 }
