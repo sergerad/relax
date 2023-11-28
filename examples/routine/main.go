@@ -7,13 +7,22 @@ import (
 )
 
 func main() {
-	// Start a routine
+	// Start and wait for a routine
 	routine := relax.Go(func() error {
 		panic(1)
 	})
-
-	// Wait for routine
 	if err := routine.Wait(); err != nil {
 		fmt.Println(err)
 	}
+
+	// If we don't want to wait for the routine, we can use the
+	// following pattern:
+	routine = relax.Go(func() error {
+		panic(2)
+	})
+	go func() {
+		if err := routine.Wait(); err != nil {
+			fmt.Println(err)
+		}
+	}()
 }
