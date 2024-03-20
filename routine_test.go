@@ -16,14 +16,31 @@ func TestRoutine_NilError(t *testing.T) {
 }
 
 func TestRoutine_Panic_NotNilError(t *testing.T) {
-	panicMsg := "test panic"
-	r := Go(func() error {
-		panic("test panic")
-	})
-	err := r.Wait()
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), panicMsg)
-	assert.True(t, errors.Is(err, PanicError))
+	var tests = []struct {
+		name            string
+		panicDatum      any
+		expectedContent string
+	}{
+		{"empty", "", ""},
+		{"non-empty", "test panic", "test panic"},
+		{"error", errors.New("fail"), "fail"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r := Go(func() error {
+				panic(test.panicDatum)
+			})
+			err := r.Wait()
+			require.Error(t, err)
+			switch x := test.panicDatum.(type) {
+			case error:
+				assert.Contains(t, err.Error(), x.Error())
+			default:
+				assert.Contains(t, err.Error(), test.expectedContent)
+			}
+			assert.True(t, errors.Is(err, PanicError))
+		})
+	}
 }
 
 func TestRecoverError(t *testing.T) {
