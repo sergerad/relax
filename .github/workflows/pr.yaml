@@ -1,6 +1,9 @@
 name: Test src and generate coverage badge
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
