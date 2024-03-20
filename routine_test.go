@@ -25,3 +25,25 @@ func TestRoutine_Panic_NotNilError(t *testing.T) {
 	assert.Contains(t, err.Error(), panicMsg)
 	assert.True(t, errors.Is(err, PanicError))
 }
+
+func TestRecoverError(t *testing.T) {
+	var tests = []struct {
+		name        string
+		panicDatum  any
+		expectedErr error
+	}{
+		{"nil", nil, nil},
+		{"string", "fail", PanicError},
+		{"int", 0, PanicError},
+		{"error", errors.New(""), PanicError},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := recoverError(test.panicDatum)
+			if !errors.Is(err, test.expectedErr) {
+				t.Errorf("expected %v, got %v", test.expectedErr, err)
+			}
+		})
+	}
+}

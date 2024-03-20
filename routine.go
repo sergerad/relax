@@ -2,6 +2,8 @@ package relax
 
 import (
 	"fmt"
+
+	"errors"
 )
 
 // Routine is a handle to a goroutine's error response
@@ -20,19 +22,28 @@ func Go(f func() error) *Routine {
 		errChan: make(chan error, 1),
 	}
 	go func() {
-		// Define a recover func that converts a panic to an error
-		recoverFunc := func() {
-			if r := recover(); r != nil {
-				// Assign the panic content to returned error
-				routine.errChan <- fmt.Errorf("%w: %v", PanicError, r)
-			}
-		}
 		// Always close
 		defer close(routine.errChan)
 		// Handle panics
-		defer recoverFunc()
+		defer func() {
+			if r := recover(); r != nil {
+				routine.errChan <- recoverError(r)
+			}
+		}()
 		// Call the provided func
 		routine.errChan <- f()
 	}()
 	return routine
+}
+
+// recoverError will transform a recovered panic datum to an error
+func recoverError(r any) error {
+	switch x := r.(type) {
+	case error:
+		return errors.Join(x, PanicError)
+	case nil:
+		return nil
+	default:
+		return fmt.Errorf("%w: %v", PanicError, r)
+	}
 }

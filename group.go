@@ -33,15 +33,12 @@ func NewGroup(ctx context.Context) (*RoutineGroup, context.Context) {
 // any panic is recovered and returned as an error
 func (g *RoutineGroup) Go(f func() error) {
 	g.Group.Go(func() (err error) {
-		// Define a recover func that converts a panic to an error
-		recoverFunc := func() {
-			if r := recover(); r != nil {
-				// Assign the panic content to returned error
-				err = fmt.Errorf("%w: %v", PanicError, r)
-			}
-		}
 		// Handle panics
-		defer recoverFunc()
+		defer func() {
+			if r := recover(); r != nil {
+				err = recoverError(r)
+			}
+		}()
 		// Call the provided func
 		return f()
 	})
