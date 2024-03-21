@@ -8,11 +8,68 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	errTestSentinel = errors.New("test sentinel")
+)
+
 func TestRoutine_NilError(t *testing.T) {
 	r := Go(func() error {
 		return nil
 	})
 	assert.NoError(t, r.Wait())
+}
+
+func TestRoutine_Multicall(t *testing.T) {
+	var tests = []struct {
+		name        string
+		f           func() error
+		expectedErr error
+	}{
+		{"nil", func() error { return nil }, nil},
+		{"err", func() error { return errTestSentinel }, errTestSentinel},
+		{"panic", func() error { panic("test panic") }, PanicError},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r := Go(func() error {
+				return test.f()
+			})
+			for i := 0; i < 5; i++ {
+				err := r.Wait()
+				if i == 0 {
+					if !errors.Is(err, test.expectedErr) {
+						t.Errorf("expected %v, got %v. iteration %d", test.expectedErr, err, i)
+					}
+				} else {
+					if err != nil {
+						t.Errorf("expected nil, got %v. iteration %d", err, i)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestRoutine_Release(t *testing.T) {
+	var tests = []struct {
+		name string
+		err  error
+	}{
+		{"nil", nil},
+		{"error", errTestSentinel},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			Go(func() error {
+				return test.err
+			}).Release(func(err error) {
+				if !errors.Is(err, test.err) {
+					t.Errorf("expected %v, got %v", test.err, err)
+				}
+			})
+
+		})
+	}
 }
 
 func TestRoutine_Panic_NotNilError(t *testing.T) {
@@ -23,7 +80,7 @@ func TestRoutine_Panic_NotNilError(t *testing.T) {
 	}{
 		{"empty", "", ""},
 		{"non-empty", "test panic", "test panic"},
-		{"error", errors.New("fail"), "fail"},
+		{"error", errTestSentinel, errTestSentinel.Error()},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

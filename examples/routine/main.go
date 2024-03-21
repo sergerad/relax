@@ -15,14 +15,11 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// If we don't want to wait for the routine, we can use the
-	// following pattern:
+	// If we don't want to wait for the routine, release it
 	routine = relax.Go(func() error {
 		panic(2)
 	})
-	go func() {
-		if err := routine.Wait(); err != nil {
-			fmt.Println(err)
-		}
-	}()
+	routine.Release(func(err error) {
+		fmt.Println(err)
+	})
 }

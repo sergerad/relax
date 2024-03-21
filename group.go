@@ -2,15 +2,8 @@ package relax
 
 import (
 	"context"
-	"fmt"
 
 	"golang.org/x/sync/errgroup"
-)
-
-var (
-	// PanicError is returned when a panic is recovered
-	// during the execution of a goroutine
-	PanicError = fmt.Errorf("recovered from panic")
 )
 
 // RoutineGroup is a wrapper around golang.org/x/sync/errgroup.Group that
@@ -31,8 +24,8 @@ func NewGroup(ctx context.Context) (*RoutineGroup, context.Context) {
 
 // Go runs a provided func in a goroutine while ensuring that
 // any panic is recovered and returned as an error
-func (g *RoutineGroup) Go(f func() error) {
-	g.Group.Go(func() (err error) {
+func (rg *RoutineGroup) Go(f func() error) {
+	rg.Group.Go(func() (err error) {
 		// Handle panics
 		defer func() {
 			if r := recover(); r != nil {
