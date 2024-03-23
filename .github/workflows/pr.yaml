@@ -17,26 +17,27 @@ jobs:
         with:
           persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
-      
+
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
 
       - name: Run lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.55
 
-      - name: Go build
-        run: go build -v ./...
+      - name: Go run examples
+        shell: bash
+        run: ./.github/workflows/scripts/examples.sh
 
       - name: Run Test
         run: |
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out
 
-      - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
+      - name: Go Coverage Badge # Pass the `coverage.out` output to this action
         uses: tj-actions/coverage-badge-go@v2
         with:
           filename: coverage.out
