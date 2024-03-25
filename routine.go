@@ -21,9 +21,10 @@ func (r *Routine) Wait() error {
 // Release will call the handler against an error returned by this routine.
 // Once a routine is released, waiting on it will return nil.
 func (r *Routine) Release(handler func(error)) {
-	go func() {
+	Go(func() error {
 		handler(r.Wait())
-	}()
+		return nil
+	})
 }
 
 // Go launches a goroutine that will return an error if the provided func panics or
