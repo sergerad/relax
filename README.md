@@ -1,7 +1,7 @@
 # Relax
 #### *...there's no need to panic.*
 
-![Coverage](https://img.shields.io/badge/Coverage-49.2%25-yellow)
+![Coverage](https://img.shields.io/badge/Coverage-93.3%25-brightgreen)
 
 In some situations, encountering a panic can be problematic. For example:
 * If your REST server panics while handling a POST request, you may end up with a dangling resource in your database;
