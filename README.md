@@ -3,12 +3,12 @@
 
 ![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
 
-In some situations, encountering a panic can be problematic. For example:
-* If your REST server panics while handling a POST request, you may end up with a dangling resource in your database;
-* Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a panic; and
+In some situations, encountering an unrecoverable panic can be problematic. For example:
+* If your REST server crashes while handling a POST request, you may end up with a dangling resource in your database;
+* Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a crash; and
 * When running tests, such as integration tests using Go's [coverage capabilities](https://go.dev/testing/coverage/#panicprof), a panic can cause you to lose your prized test results.
 
-In contrast to panicking applications, relaxed Go programs start and finish gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
+Instead of crashing, relaxed Go programs always shutdown gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
 
 Relaxed Go programs will only shutdown after all running operations and connections have completed and closed, respectively.
 
