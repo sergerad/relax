@@ -19,4 +19,4 @@ jobs:
       - name: Check Coverage
         shell: bash
         run: |
-          grep total < coverage.out | grep '100.0%'
+          grep 'total.*100\.0%' < coverage.out
