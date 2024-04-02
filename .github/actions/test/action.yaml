@@ -1,0 +1,24 @@
+name: Build and Test Source
+
+runs:
+  using: composite
+  steps:
+    - name: Setup go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: "go.mod"
+
+    - name: Run lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: v1.55
+
+    - name: Go run examples
+      shell: bash
+      run: ./.github/workflows/scripts/examples.sh
+
+    - name: Run Test
+      shell: bash
+      run: |
+        go test -v . -covermode=count -coverprofile=coverage.out
+        go tool cover -func=coverage.out -o=coverage.out
