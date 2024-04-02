@@ -59,3 +59,7 @@ func recoverError(r any) error {
 		return fmt.Errorf("%w: %v", PanicError, r)
 	}
 }
+
+func NoCover() {
+	println("ok")
+}
