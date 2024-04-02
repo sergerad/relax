@@ -15,3 +15,8 @@ jobs:
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       - uses: ./.github/actions/test
+
+      - name: Check Coverage
+        shell: bash
+        run: |
+          grep total < coverage.out | grep '100.0%'
