@@ -3,6 +3,8 @@
 
 ![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
 
+Go programs should panic, recover, and relax. Why?
+
 In some situations, encountering an unrecoverable panic can be problematic. For example:
 * If your REST server crashes while handling a POST request, you may end up with a dangling resource in your database;
 * Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a crash; and
@@ -50,7 +52,7 @@ Finally, in the main goroutine, make sure to wait for the error group:
 
 ```Go
 	if err := group.Wait(); err != nil {
-		log.Fatal(err)
+		// Handle the error...
 	}
 ```
 
@@ -61,8 +63,16 @@ When you only have a single goroutine to run, you can use `Routine` instead of `
 		panic("failed")
 	})
 	if err := routine.Wait(); err != nil {
-		log.Fatal(err)
+		// Handle the error...
 	}
+```
+
+If you don't wish to wait for the result, you can register a callback:
+
+```Go
+	routine.Release(func(err error) {
+		// Handle the error
+	})
 ```
 
 For more detailed usage, see [examples](./examples/) and the `*_test.go` files.
