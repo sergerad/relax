@@ -5,10 +5,10 @@
 
 Sometimes we don't want a single panic to result in the abrupt termination of our entire application.
 
-For example, an unrecovered panic might be problmatic:
+For example, an unrecovered panic might be problematic:
 * If it causes your API server to abruptly terminate many parallel connections or leave dangling resources in your data store;
 * If your application writes state to a filesystem and an interruption between writes may produce irrecoverable state;
-* If you CLI application is expected to always output a particlar format (E.G. JSON); or
+* If you CLI application is expected to always output a particular format (E.G. JSON); or
 * When running tests, such as integration tests using Go's [coverage capabilities](https://go.dev/testing/coverage/#panicprof), where you may lose your prized test results.
 
 Instead of crashing, relaxed Go programs always shutdown gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
