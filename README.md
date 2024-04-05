@@ -3,18 +3,27 @@
 
 ![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
 
-Go programs should panic, recover, and relax. Why?
+Sometimes we don't want a single panic to result in the abrupt termination of our entire application.
 
-In some situations, encountering an unrecoverable panic can be problematic. For example:
-* If your REST server crashes while handling a POST request, you may end up with a dangling resource in your database;
-* Applications that write state to filesystems may produce irrecoverable state if a series of dependant file writes is interrupted by a crash; and
-* When running tests, such as integration tests using Go's [coverage capabilities](https://go.dev/testing/coverage/#panicprof), a panic can cause you to lose your prized test results.
+For example, an unrecovered panic might be problmatic:
+* If it causes your API server to abruptly terminate many parallel connections or leave dangling resources in your data store;
+* If your application writes state to a filesystem and an interruption between writes may produce irrecoverable state;
+* If you CLI application is expected to always output a particlar format (E.G. JSON); or
+* When running tests, such as integration tests using Go's [coverage capabilities](https://go.dev/testing/coverage/#panicprof), where you may lose your prized test results.
 
 Instead of crashing, relaxed Go programs always shutdown gracefully, even in the case of SIGINT, SIGTERM, and concurrent panics.
 
+#### What can this module help with?
+
 Relaxed Go programs will only shutdown after all running operations and connections have completed and closed, respectively.
 
-This module is intended to aid in the development of relaxed Go programs. The main challenge in achieving this is to ensure that all panicking goroutines are recovered and lead to the graceful shutdown of the program. Read about panic and recover [here](https://go.dev/blog/defer-panic-and-recover) for more detail.
+This module is intended to aid in the development of relaxed Go programs.
+
+The main challenge in achieving this is to ensure that panicking goroutines are recovered and lead to the graceful shutdown of the program. A panic can only be recovered inside the goroutine within which the panic occurred. Read about panic and recover [here](https://go.dev/blog/defer-panic-and-recover) for more detail.
+
+The other challenge to recovering from panics is that it requires a bit of complex boilerplate code. In order to convert a panic to an error, you need to defer a `recover()` call inside a closure. This closure needs to assign the panic content to an error variable which is a named return variable in order for it to be returned by the func that has recovered from the panic. See [here](https://golang.org/ref/spec#Defer_statements) for more detail on that.
+
+With the `relax` module, recovering from a panicking goroutine looks just like a normal func call.
 
 ## Usage
 
