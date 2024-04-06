@@ -53,7 +53,7 @@ If you have multiple, long running processes to run in your program, you can use
 You can use the `RoutineGroup` to launch goroutines which will return an error if they encounter a panic.
 ```Go
 	group.Go(func() error {
-		panic("failed")
+		[]int{}[0] = 1 // Panic for example
 	})
 ```
 
@@ -69,7 +69,7 @@ When you only have a single goroutine to run, you can use `Routine` instead of `
 
 ```Go
 	routine := relax.Go(func() error {
-		panic("failed")
+		[]int{}[0] = 1 // Panic for example
 	})
 	if err := routine.Wait(); err != nil {
 		// Handle the error...

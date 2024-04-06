@@ -30,5 +30,6 @@ func main() {
 }
 
 func exampleProcessor(ctx context.Context) error {
-	panic("processor failed")
+	[]int{}[0] = 1
+	return nil
 }
