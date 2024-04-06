@@ -9,7 +9,8 @@ import (
 func main() {
 	// Start and wait for a routine
 	routine := relax.Go(func() error {
-		panic(1)
+		[]int{}[0] = 1
+		return nil
 	})
 	if err := routine.Wait(); err != nil {
 		fmt.Println(err)
@@ -17,7 +18,8 @@ func main() {
 
 	// If we don't want to wait for the routine, release it
 	routine = relax.Go(func() error {
-		panic(2)
+		[]int{}[0] = 1
+		return nil
 	})
 	routine.Release(func(err error) {
 		fmt.Println(err)
