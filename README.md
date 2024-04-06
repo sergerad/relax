@@ -1,7 +1,7 @@
 # Relax
 #### *...there's no need to panic.*
 
-![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-93.3%25-brightgreen)
 
 Sometimes we don't want a single panic to result in the abrupt termination of our entire application.
 
