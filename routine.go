@@ -2,6 +2,8 @@ package relax
 
 import (
 	"fmt"
+	"log"
+	"runtime"
 
 	"errors"
 )
@@ -9,7 +11,8 @@ import (
 // Routine is a handle to a goroutine's error response.
 // Panics that occur in this routine are converted into errors.
 type Routine struct {
-	errChan chan error
+	errChan   chan error
+	stackBuff []byte
 }
 
 // Wait blocks until the goroutine corresponding to the Routine instance returns an error.
@@ -27,11 +30,18 @@ func (r *Routine) Release(handler func(error)) {
 	})
 }
 
+// stack will capture the stack of the running goroutine.
+func (r *Routine) stack() []byte {
+	runtime.Stack(r.stackBuff, true)
+	return r.stackBuff
+}
+
 // Go launches a goroutine that will return an error if the provided func panics or
 // an error is returned by the provided func.
 func Go(f func() error) *Routine {
 	routine := &Routine{
-		errChan: make(chan error, 1),
+		errChan:   make(chan error, 1),
+		stackBuff: make([]byte, 1<<16),
 	}
 	go func() {
 		// Always close
@@ -39,6 +49,8 @@ func Go(f func() error) *Routine {
 		// Handle panics
 		defer func() {
 			if r := recover(); r != nil {
+				// Capture the stack of the running goroutine
+				log.Printf("Relax: captured stack in recover \n%s", routine.stack())
 				routine.errChan <- recoverError(r)
 			}
 		}()
