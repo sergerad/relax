@@ -106,6 +106,7 @@ func TestRoutine_Stack_CapturesStack(t *testing.T) {
 	}
 	stack := r.stack()
 	assert.NotEmpty(t, stack)
+	assert.Contains(t, string(stack), "TestRoutine_Stack_CapturesStack")
 }
 
 func TestRecoverError(t *testing.T) {
