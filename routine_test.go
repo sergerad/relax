@@ -1,7 +1,9 @@
 package relax
 
 import (
+	"bytes"
 	"errors"
+	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -98,6 +100,18 @@ func TestRoutine_Panic_NotNilError(t *testing.T) {
 			assert.True(t, errors.Is(err, PanicError))
 		})
 	}
+}
+
+func TestRoutine_Stack_WritesStack(t *testing.T) {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(nil)
+
+	r := &Routine{
+		stackBuff: make([]byte, 1<<16),
+	}
+	stack := r.stack()
+	assert.NotEmpty(t, stack)
 }
 
 func TestRecoverError(t *testing.T) {
