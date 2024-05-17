@@ -49,7 +49,7 @@ func Go(f func() error) *Routine {
 		// Handle panics
 		defer func() {
 			if r := recover(); r != nil {
-				// Capture the stack of the running goroutine
+				// Log the stack of the running goroutine
 				log.Printf("Relax: captured stack in recover \n%s", routine.stack())
 				routine.errChan <- recoverError(r)
 			}
